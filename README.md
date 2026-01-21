@@ -102,6 +102,15 @@ El motor de reglas (`rules_engine.py`) aplica las siguientes validaciones:
 3.  **Restricciones por Centro de Costo:**
     - Si el `cost_center` es `"core_engineering"` y la `category` es `"food"`, el estado es `RECHAZADO`.
 
+4.  **Detección de Anomalías (Lotes):**
+    - **Duplicados:** Gastos con mismo monto, moneda y fecha (**Estado: PENDIENTE**).
+    - **Montos Negativos:** Gastos con valores inferiores a cero (**Estado: RECHAZADO**).
+
 ### Resolución de Estado Final
 
-La jerarquía para determinar el estado final de un gasto es: `RECHAZADO` > `PENDIENTE` > `APROBADO`. Si una sola regla marca un gasto como `RECHAZADO`, ese será su estado final, independientemente de las demás reglas.
+La jerarquía para determinar el estado final de un gasto es: `RECHAZADO` > `PENDIENTE` > `APROBADO`. 
+
+- Si una sola regla marca un gasto como `RECHAZADO`, ese será su estado final.
+- Si no hay rechazos pero hay al menos un `PENDIENTE`, el estado será `PENDIENTE`.
+- Si no hay rechazos ni pendientes, pero hay al menos un `APROBADO`, el estado será `APROBADO`.
+- **Por defecto:** Si no aplica ninguna regla (ej. categoría sin política), el estado es `PENDIENTE` (sin alertas).
